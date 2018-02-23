@@ -1,0 +1,79 @@
+======================================================================================
+5.15 abcd
+======================================================================================
+
+Assume that the functional units have the characteristics listed in Figure 5.12.
+
+	A. Diagram how this instruction sequence would be decoded into operations 
+	   and how the data dependencies between them would create a critical path
+	   of operations, in the style of figures 5.13 and 5.14.
+
+	   		(See image 5-15a)
+
+
+	B. For data type float, what lower bound on the CPE is determined by the critical path?
+
+		Our mov, mult, and add are all 1 CPE, therefore:
+		Our lower bound on the CPE is 3.00, because of our addition instruction.
+
+
+	C. Assuming similar instruction sequences for the integer code as well, what lower bound
+	   on the CPE is determined by the critical path for integer data?
+
+	   Lower bound of addition is 1.00. 
+
+
+	D. Explain how the two floating-point versions can have CPEs of 3.00, even though the
+	   multiplication operation requres either 4 or 5 clock cycles.
+
+	   Because multiplication is not along a critical path, we are able to do multiple
+	   mult operations at the same time.
+
+
+======================================================================================
+5.16 a
+======================================================================================
+
+Write a version of the inner product procedure described in problem 5.15 that uses four-way
+loop unrolling. For x86-64, our measurements of the unrolled version give a CPE of 2.00 for
+integer data but still 3.00 for both single and double precision
+
+	A. Explain why any version of any inner product procedure cannot achieve a CPE of 
+	less than 2.00.
+
+		This is because of the load statements, which are the critical paths. Since 
+		there are two loads (one for each vector) we can't do any better than that.
+
+======================================================================================
+5.17 a
+======================================================================================
+
+Write a version of the inner product procedure described in Problem 5.15 that
+uses four-way loop unrolling with four parallel accumulators. Our measurements
+for this function with x86-64 give a CPE of 2.00 for all types of data.
+
+	A. What factor limits the performance to a CPE of 2.00?
+
+		Because of loading! See part A
+
+
+
+======================================================================================
+Question 4
+======================================================================================
+
+4. [10] Try running parts 1-3 above using various values for VECTOR_SIZE. What happens to the execution times of the three algorithms running on your machine as VECTOR_SIZE increases? Write your observations in your solutions document.
+
+
+	Mine actually got worse! I have a 32-bit system so my code was trying to use
+	more registers than I had available, thus slowing it down during 4-way unrolling.
+
+
+	If I had a 64bit processor, runtimes would be as follows (length required to execute):
+		5-15.c    >     5-16.c     >=   5-17.c
+
+		The speedup between 5-16 and 5-17 is almost nothing.
+
+
+======================================================================================
+======================================================================================

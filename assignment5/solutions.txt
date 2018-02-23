@@ -1,0 +1,177 @@
+1. [50] Write a Y86 program to run and test the following C code:
+
+int f(int x) {
+	return 3*x;
+}
+int g(int a, int b) {
+	return f(a) + f(b);
+}
+
+=================================================================
+=================================================================
+=================================================================
+.pos 0
+Init:
+    irmovl Stack, %ebp
+    irmovl Stack, %esp
+    call Main
+    halt
+
+##int f(int x) { return 3*x; }
+f:
+    ##Function Prologue
+    pushl %ebp
+    rrmovl %esp, %ebp
+    
+    ##Function Body 
+    mrmovl 8(%ebp), %eax
+    ##safe copy of eax's original value
+    rrmovl %eax, %edx
+    
+    ##double %eax, add one more of itself
+    addl %eax, %eax
+    addl %edx, %eax
+        
+    popl %ebp
+    ret
+
+##int g(int a, int b) {return f(a) + f(b);}
+g:
+    ##Function Prologue
+    pushl %ebp
+    rrmovl %esp, %ebp
+    
+    ##Function Body
+    mrmovl 8(%ebp), %eax ##This will be a
+    pushl %eax
+    call f
+    rrmovl %eax, %ecx
+    
+    mrmovl 12(%ebp), %eax ##This will be b
+    pushl %eax
+    call f
+
+    ##Sum results of f(a) and f(b), store in %edx
+    addl %ecx, %eax
+    
+    ##Function Epilogue
+    irmovl $8, %edx
+    addl %edx, %esp
+    popl %ebp
+    ret
+    
+Main:
+    ##Function Prologue
+    pushl %ebp
+    rrmovl %esp, %ebp
+
+    ##Push A value onto the stack
+    irmovl $5, %ecx
+    pushl %ecx
+    
+    ##==============================
+    call f
+    brk ##%eax should hold the value 15
+    
+    ##Push B value onto the stack
+    irmovl $9, %ecx
+    pushl %ecx
+    
+    ##===============================
+    call g
+    brk ##%eax should hold the value 15 + 27 = 42
+    
+    ##Function Epilogue
+    irmovl $8, %edx
+    addl %edx, %esp
+    popl %ebp
+    ret
+    
+.pos 0x100
+Stack:
+    
+=================================================================
+=================================================================
+=================================================================
+2. Draw a circuit (using AND, OR, and/or NOT gates) with inputs A, 
+B, C, and D and one output such that the output is on only if A is 
+on and B is off or C is off and D is on (e.g., (A && !B) || (!C && D)). Include your answer in your solutions document.
+
+(See file CIS314Assignment5Part2 (Circuit).png)
+
+=================================================================
+=================================================================
+=================================================================
+3. [25] B&O’H 4.47.
+In our example Y86 programs, such as the Sum function shown in 
+Figure 4.6, we encounter many cases (e.g., lines 12 and 13 and 
+lines 14 and 15) in which we want to add a constant value to a 
+register. This requires first using an irmovl instruction to set 
+a register to the constant, and then an addl instruction to add 
+this value to the destination register. Suppose we want to add 
+a new instruction iaddl with the following format: (see book)
+This instruction adds the constant value V to register rB. 
+Describe the computations performed to implement this instruction. 
+
+Use the computations for irmovl and OPl (Figure 4.18) as a guide.
+
+iaddl V, rB 
+
+========================================================
+STAGE ONE - FETCH:
+========================================================
+
+	0     1      2  3   4   5
+PC->[C][0][F][rB][______V______]
+
+icode : ifun <--- M1[PC]
+C : 0
+
+rA : rB <--- M1[PC + 1]
+F : rB
+
+valC <--- M4[PC + 2]
+valP <--- PC + 6
+
+========================================================
+STAGE TWO - DECODE:
+========================================================
+
+valA <--- valC
+= Our constant value 
+
+valB <--- R[rB]
+= Our destination register
+
+
+========================================================
+STAGE THREE - EXECUTE:
+========================================================
+
+ValE <--- valB + valA
+Add (ifun: 0) our destination register with our constant value
+
+Set CC
+We would set our condition codes here
+
+========================================================
+STAGE FOUR - MEMORY:
+========================================================
+
+Nothing here! We are moving immediate values to regiters,
+so nothing is stored directly in our memory
+
+========================================================
+STAGE FIVE - WRITE BACK:
+========================================================
+
+R[rB] <--- val E
+Place the value E (the sum of our immediate value and register)
+back into our destination register
+
+========================================================
+STAGE SIX - PC UPDATE:
+========================================================
+
+PC <--- valP
+Go to the next instruction!!

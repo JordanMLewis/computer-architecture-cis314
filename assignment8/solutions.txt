@@ -1,0 +1,56 @@
+=====================================================================
+1. B&O'H 6.39
+=====================================================================
+
+ 3M™ decides to make Post-It® notes by printing yellow squares on white pieces of paper. As part of the printing process, they need to set theCMYK(cyan, magenta, yellow, black) value for every point in the square. 3M hires you to determine the efficiency of the following algorithms on a machine with a 2048-byte directmapped data cache with 32-byte blocks. You are given the following definitions:
+
+
+ struct point_color {
+	int c;
+	int m;
+	int y;
+	int k;
+};
+
+struct point_color square[16][16];
+int i, j;
+
+Assume the following:
+. sizeof(int) == 4.
+. square begins at memory address 0.
+. The cache is initially empty.
+. The only memory accesses are to the entries of the array square. Variables 	i and j are stored in registers.
+
+
+Determine the cache performance of the following code:
+
+1 		for (i = 0; i < 16; i++){
+2 			for (j = 0; j < 16; j++) {
+3 				square[i][j].c = 0;
+4 				square[i][j].m = 0;
+5 				square[i][j].y = 1;
+6 				square[i][j].k = 0;
+7 			}
+8 		}
+
+=====================================================================
+A. What is the total number of writes?
+=====================================================================
+
+inner loop does 4 writes, 16 times. Outer loop does this 16 times
+
+Thus, 16 * 16 * 4 = 1,024 writes
+
+=====================================================================
+B. What is the total number of writes that miss in the cache?
+=====================================================================
+
+Out of 8 writes, 1 of them misses the cache.
+
+Thus, 1024 / 8 = 128 misses
+
+=====================================================================
+C. What is the miss rate?
+=====================================================================
+
+1/8 writes will miss the cache
